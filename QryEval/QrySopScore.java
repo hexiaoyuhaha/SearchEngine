@@ -36,6 +36,8 @@ public class QrySopScore extends QrySop {
       return this.getScoreUnrankedBoolean (r);
     } else if (r instanceof RetrievalModelRankedBoolean) {
       return this.getScoreRankedBoolean (r);
+    } else if (r instanceof RetrievalModelBM25) {
+      return this.getScoreBM25 (r);
     } else {
       throw new IllegalArgumentException
         (r.getClass().getName() + " doesn't support the SCORE operator.");
@@ -68,6 +70,28 @@ public class QrySopScore extends QrySop {
     } else {
       int tf = ((QryIop) this.args.get(0)).getCurrentTf();
       return tf;
+    }
+  }
+
+  public double getScoreBM25 (RetrievalModelBM25 r) throws IOException {
+    if (! this.docIteratorHasMatchCache()) {
+      return 0.0;
+    } else {
+      long N = Idx.getNumDocs();
+      int df = ((QryIop) this.args.get(0)).getDf();
+      double RSJ;
+      if (N < 2 * df) RSJ = 0;
+      else RSJ = Math.log((N - df + 0.5) / (df + 0.5));
+
+      QryIop term = ((QryIop) this.args.get(0));
+      int tf = term.getCurrentTf();
+      int docid = this.docIteratorGetMatch();
+      double doclen = Idx.getFieldLength (term.field, docid);
+      double avg_doclen = Idx.getSumOfFieldLengths(term.field) / (float) Idx.getDocCount(term.field);
+      double k1 = r.getK_1(), b = r.getB();
+      double tfWeight = (double) tf / (tf + k1 * ((1 - b) + b * doclen / avg_doclen));
+
+      return RSJ * tfWeight;
     }
   }
 
