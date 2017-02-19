@@ -193,15 +193,10 @@ public class QryEval {
         Qry q = QryParser.getQuery(qString);
 
         // Show the query that is evaluated
-
         System.out.println("    --> " + q);
-
         if (q != null) {
-
             ScoreList r = new ScoreList();
-
             if (q.args.size() > 0) {        // Ignore empty queries
-
                 q.initialize(model); //creat all inverted list
 
                 while (q.docIteratorHasMatch(model)) {

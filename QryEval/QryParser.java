@@ -91,10 +91,10 @@ public class QryParser {
         //  Create the query operator.
 
         if (operatorNameLowerCase.startsWith("#near")) {   //"#near/3"
-                int idx = operatorNameLowerCase.indexOf("/");
+            int idx = operatorNameLowerCase.indexOf("/");
             String sub = operatorNameLowerCase.substring(idx + 1);
-                int n = Integer.parseInt(sub);
-                operator = new QryIopNear(n);
+            int n = Integer.parseInt(sub);
+            operator = new QryIopNear(n);
         } else {
             switch (operatorNameLowerCase) {
                 case "#and":
@@ -107,6 +107,10 @@ public class QryParser {
 
                 case "#syn":
                     operator = new QryIopSyn();
+                    break;
+
+                case "#sum":
+                    operator = new QrySopSum();
                     break;
 
                 default:
@@ -333,11 +337,9 @@ public class QryParser {
             queryString = p.getRemaining().trim();    // Consume the arg
 
             //  Add the argument(s) to the query tree.
-
             for (int i = 0; i < qargs.length; i++) {
 
                 //  STUDENTS WILL NEED TO ADJUST THIS BLOCK TO HANDLE WEIGHTS IN HW2
-
                 queryTree.appendArg(qargs[i]);
             }
         }
@@ -351,7 +353,7 @@ public class QryParser {
      * and the modified argument string.
      *
      * @param argString A partial query argument string, e.g., "#and(a b)
-     *               c d".
+     *                  c d".
      * @return PopData<String,String> The subquery string and the
      * modified argString (e.g., "#and(a b)" and "c d".
      */
