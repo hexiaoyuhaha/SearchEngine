@@ -31,58 +31,60 @@ public class QryIopNear extends QryIop {
             return;
         }
 
-        int docId = Qry.INVALID_DOCID;
+        int size = this.args.size();
+        QryIop[] qryIops = new QryIop[size];
+        for(int i = 0; i < size; i++) {
+            qryIops[i] = (QryIop) this.args.get(i);
+        }
+
+
         // Each loop, process one doc
-        while (true) {
+        while (this.docIteratorHasMatchAll(null)) {
             // find match on DocId
-            if (this.docIteratorHasMatchAll(null)) {
-                // This is really buggy !!! Only get docId from the args
-                // Don't use docId = this.docIteratorGetMatch();
-                docId = this.args.get(0).docIteratorGetMatch();
-            } else {
-                break;  // if we don't have next match document, All process done
+            // This is really buggy !!! Only get docId from the args
+            // Don't use docId = this.docIteratorGetMatch();
+            int docId = this.args.get(0).docIteratorGetMatch();
+            for (int i = 0; i < this.args.size(); i++) {
+                this.args.get(i).docIteratorAdvanceTo(docId);
             }
 
             // Iterate over the position, record all the location to positions
             List<Integer> positions = new ArrayList<Integer>();
-            int size = this.args.size();
-            int[] locs;
-            QryIop[] qryIops;
+            int[] locs = new int[size];
 
             // Each loop, add one location to position
             while (true) {
-                // If any QryIopTerm reaches the end of position, break;
                 Boolean breakFlag = false;
-                for (int i = 0; i < size; i++) {
-                    QryIop q_i = (QryIop) this.args.get(i);
-                    if (!q_i.locIteratorHasMatch()) {
+                Boolean matchFlag = true;
+
+                // record the current match location
+                // If any QryIopTerm reaches the end of position, break;
+                for(int i = 0; i < size; i++) {
+                    if (!qryIops[i].locIteratorHasMatch()) {
                         breakFlag = true;
                         break;
+                    } else {
+                        locs[i] = qryIops[i].locIteratorGetMatch();
                     }
                 }
                 if (breakFlag) { break;}
 
-                Boolean matchFlag = true;
-                locs = new int[size];
-                qryIops = new QryIop[size];
-                for(int i = 0; i < size; i++) {
-                    qryIops[i] = (QryIop) this.args.get(i);
-                    locs[i] = qryIops[i].locIteratorGetMatch();
-                }
+                // check igitf the locations are near
                 for(int i = 0; i < size - 1; i++) {
                     if (!( locs[i + 1] - locs[i] > 0 && locs[i + 1] - locs[i] <= n)) {
                         matchFlag = false;
                         break;
                     }
                 }
+
                 // If Match, record the position and advance all the pointers
+                // If not match. advance the smallest pointer
                 if (matchFlag) {
                     positions.add(locs[size - 1]);
                     for (int i = 0; i < size; i++) {
                         qryIops[i].locIteratorAdvance();
                     }
                 } else {
-                    // If not match. advance the smallest pointer
                     int minidx = minIdx(locs);
                     qryIops[minidx].locIteratorAdvance();
                 }
@@ -95,7 +97,7 @@ public class QryIopNear extends QryIop {
             for (int i = 0; i < this.args.size(); i++) {
                 this.args.get(i).docIteratorAdvancePast(docId);
             }
-        }
+        }  // if we don't have next match document, All process done
     }
 
 
