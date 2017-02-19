@@ -1,5 +1,5 @@
 /**
- *  Copyright (c) 2017, Carnegie Mellon University.  All Rights Reserved.
+ * Copyright (c) 2017, Carnegie Mellon University.  All Rights Reserved.
  */
 
 import java.io.IOException;
@@ -12,66 +12,103 @@ import java.util.Vector;
  *  The Near operator for all retrieval models.
  */
 public class QryIopNear extends QryIop {
+    // The distance between words
+    private int n;
 
-  /**
-   *  Evaluate the query operator; the result is an internal inverted
-   *  list that may be accessed via the internal iterators.
-   *  @throws IOException Error accessing the Lucene index.
-   */
-  protected void evaluate () throws IOException {
-
-    //  Create an empty inverted list.  If there are no query arguments,
-    //  that's the final result.
-    
-    this.invertedList = new InvList (this.getField());
-
-    if (args.size () == 0) {
-      return;
+    public QryIopNear(int n) {
+        this.n = n;
     }
 
-    //  Each pass of the loop adds 1 document to result inverted list
-    //  until all of the argument inverted lists are depleted.
+    /**
+     *  Evaluate the query operator; the result is an internal inverted
+     *  list that may be accessed via the internal iterators.
+     *  @throws IOException Error accessing the Lucene index.
+     */
+    protected void evaluate() throws IOException {
+        this.invertedList = new InvList(this.getField());
 
-    while (true) {
-
-      //  Find the minimum next document id.  If there is none, we're done.
-
-      int minDocid = Qry.INVALID_DOCID;
-
-      for (Qry q_i: this.args) {
-        if (q_i.docIteratorHasMatch (null)) {
-          int q_iDocid = q_i.docIteratorGetMatch ();
-          
-          if ((minDocid > q_iDocid) ||
-              (minDocid == Qry.INVALID_DOCID)) {
-            minDocid = q_iDocid;
-          }
+        if (args.size() < 2) {
+            return;
         }
-      }
 
-      if (minDocid == Qry.INVALID_DOCID)
-        break;				// All docids have been processed.  Done.
-      
-      //  Create a new posting that is the union of the posting lists
-      //  that match the minDocid.  Save it.
-      //  Note:  This implementation assumes that a location will not appear
-      //  in two or more arguments.  #SYN (apple apple) would break it.
+        int docId = Qry.INVALID_DOCID;
+        while (true) {
+            // All the document id should match
+            // if we have next match
+            if (this.docIteratorHasMatchAll(null)) {
+                docId = this.args.get(0).docIteratorGetMatch();
+            } else {
+                // if we don't have next match document
+                // All process done
+                break;
+            }
 
-      List<Integer> positions = new ArrayList<Integer>();
+            // After finding the docId, iterate over the position
+            // record all the location to positions
+            List<Integer> positions = new ArrayList<Integer>();
+            int size = this.args.size();
 
-      for (Qry q_i: this.args) {
-        if (q_i.docIteratorHasMatch (null) &&
-            (q_i.docIteratorGetMatch () == minDocid)) {
-          Vector<Integer> locations_i =
-            ((QryIop) q_i).docIteratorGetMatchPosting().positions;
-	  positions.addAll (locations_i);
-          q_i.docIteratorAdvancePast (minDocid);
-	}
-      }
+            // If only have one list, then there is no need to do
 
-      Collections.sort (positions);
-      this.invertedList.appendPosting (minDocid, positions);
+            int[] locs;
+            QryIop[] qryIops;
+            while (true) {
+                // If any QryIopTerm reaches the end of position, break;
+                Boolean breakFlag = false;
+                for (int i = 0; i < size; i++) {
+                    QryIop q_i = (QryIop) this.args.get(i);
+                    if (!q_i.locIteratorHasMatch()) {
+                        breakFlag = true;
+                        break;
+                    }
+                }
+                if (breakFlag) { break;}
+
+                Boolean matchFlag = true;
+                locs = new int[size];
+                qryIops = new QryIop[size];
+                for(int i = 0; i < size; i++) {
+                    qryIops[i] = (QryIop) this.args.get(i);
+                    locs[i] = qryIops[i].locIteratorGetMatch();
+                }
+                for(int i = 0; i < size - 1; i++) {
+                    if (!( locs[i + 1] - locs[i] > 0 && locs[i + 1] - locs[i] <= n)) {
+                        matchFlag = false;
+                        break;
+                    }
+                }
+                // If Match, record the position and advance all the pointers
+                if (matchFlag) {
+                    positions.add(locs[size - 1]);
+                    for (int i = 0; i < size; i++) {
+                        qryIops[i].locIteratorAdvance();
+                    }
+                } else {
+                    // If not match. advance the smallest pointer
+                    int minidx = minIdx(locs);
+                    qryIops[minidx].locIteratorAdvance();
+                }
+            }
+
+
+            if (positions.size() > 0) {
+                this.invertedList.appendPosting(docId, positions);
+            }
+            for (int i = 0; i < this.args.size(); i++) {
+                this.args.get(i).docIteratorAdvancePast(docId);
+            }
+        }
     }
-  }
+
+
+    private int minIdx(int[] nums) {
+        int mindidx = 0;
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[mindidx] > nums[i]) {
+                mindidx = i;
+            }
+        }
+        return mindidx;
+    }
 
 }

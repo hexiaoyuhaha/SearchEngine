@@ -1,0 +1,4 @@
+indexPath=/Users/hexiaoyu/Desktop/11642 search/index
+retrievalAlgorithm=RankedBoolean
+queryFilePath=HW1-Test-30.qry
+trecEvalOutputPath=HW1-Test-30-RB.teIn

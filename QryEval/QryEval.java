@@ -136,6 +136,34 @@ public class QryEval {
   }
 
   /**
+   * //     This 3 should be treated as default queries
+   //     brooks.title brothers.title clearance
+   //     #AND(brooks.title brothers.title) clearance
+   //     #AND(brooks brothers) #AND(like india)
+   */
+  public static Boolean needDefaultOperator(String qString) throws IllegalArgumentException {
+
+    if (!qString.startsWith("#") || !qString.trim().endsWith(")")) {
+      return true;
+    } else {
+      int firstLeftIdx = qString.indexOf("(");
+      int pairRightIdx = -1;
+      int count = 1;
+      for (int i = firstLeftIdx + 1; i < qString.length(); i++) {
+        if (qString.charAt(i) == '(') count++;
+        if (qString.charAt(i) == ')') count--;
+        if (count == 0) {
+          pairRightIdx = i;
+          break;
+        }
+      }
+      if (pairRightIdx == -1) throw new IllegalArgumentException("Syntax Error: Missing closing paranthesis");
+      if (pairRightIdx != qString.length() - 1) return true;
+    }
+    return false;
+  }
+
+  /**
    * Process one query.
    * @param qString A string that contains a query.
    * @param model The retrieval model determines how matching and scoring is done.
@@ -145,14 +173,11 @@ public class QryEval {
   static ScoreList processQuery(String qString, RetrievalModel model)
     throws IOException {
 
-    // Or operator, qString: "#OR(living in india)"
-    if (!qString.startsWith("#")) {
+    if (needDefaultOperator(qString)) {
       // Add "#or" for default parameter, qString: "forearm pain"
       String defaultOp = model.defaultQrySopName ();
       qString = defaultOp + "(" + qString + ")";
     }
-
-
 
 
     // automaticlly add
@@ -172,7 +197,16 @@ public class QryEval {
 
         while (q.docIteratorHasMatch (model)) {
           int docid = q.docIteratorGetMatch ();
-          double score = ((QrySop) q).getScore (model);
+          double score;
+          if (q instanceof QryIopNear) {
+            if (model instanceof RetrievalModelUnrankedBoolean) {
+              score = ((QryIopNear) q).getCurrentTf() > 0 ? 1 : 0;
+            } else {
+              score = ((QryIopNear) q).getCurrentTf();
+            }
+          } else {
+            score = ((QrySop) q).getScore (model);
+          }
           r.add (docid, score);
           q.docIteratorAdvancePast (docid);
         }
@@ -277,9 +311,10 @@ public class QryEval {
 
       if (result.size() < 1) {
         String writeLine = String.format("%d\t%s\t%s\t%d\t%d\t%s", 10, "Q0", "dummy", 1, 0, runId);
-
+        bw.write(writeLine);
       } else {
         int outputLen = min(trecEvalOutputLength, result.size());
+//        int outputLen = result.size();
         for (int i = 0; i < outputLen; i++) {
           String formattedLine = String.format("%s\t%s\t%s\t%d\t%s\t%s\n", qid, "Q0", Idx.getExternalDocid(result.getDocid(i)), i, result.getDocidScore(i), runId);
           bw.write(formattedLine);

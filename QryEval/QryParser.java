@@ -90,27 +90,29 @@ public class QryParser {
 
         //  Create the query operator.
 
-        switch (operatorNameLowerCase) {
-            case "#near":
-                operator = new QrySopNear();
-                break;
+        if (operatorNameLowerCase.startsWith("#near")) {   //"#near/3"
+                int idx = operatorNameLowerCase.indexOf("/");
+            String sub = operatorNameLowerCase.substring(idx + 1);
+                int n = Integer.parseInt(sub);
+                operator = new QryIopNear(n);
+        } else {
+            switch (operatorNameLowerCase) {
+                case "#and":
+                    operator = new QrySopAnd();
+                    break;
 
-            case "#and":
-                operator = new QrySopAnd();
-                break;
+                case "#or":
+                    operator = new QrySopOr();
+                    break;
 
-            case "#or":
-                operator = new QrySopOr();
-                break;
+                case "#syn":
+                    operator = new QryIopSyn();
+                    break;
 
-            case "#syn":
-                operator = new QryIopSyn();
-                break;
-
-            default:
-                syntaxError("Unknown query operator " + operatorName);
+                default:
+                    syntaxError("Unknown query operator " + operatorName);
+            }
         }
-
         operator.setDisplayName(operatorName);
 
         return operator;
@@ -276,7 +278,7 @@ public class QryParser {
         //  check for basic errors first.
 
         queryString = queryString.trim();    // The last character should be ')'
-
+        // Here, we have already added default query operator
         if ((countChars(queryString, '(') == 0) ||
                 (countChars(queryString, '(') != countChars(queryString, ')')) ||
                 (indexOfBalencingParen(queryString) != (queryString.length() - 1))) {
