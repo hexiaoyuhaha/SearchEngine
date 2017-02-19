@@ -1,0 +1,6 @@
+out/
+output/
+.idea/
+*.iml
+*.zip
+
