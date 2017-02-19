@@ -1,9 +1,9 @@
 indexPath=/Users/hexiaoyu/Desktop/11642 search/index
 retrievalAlgorithm=BM25
-queryFilePath=intput/queries.txt
+queryFilePath=input/queries-test.txt
 trecEvalOutputPath=output/HW2-Test-1-BM25.teIn
 BM25:k_1=1.2
 BM25:b=0.75
-BM25:k_3=0.
+BM25:k_3=0.0
 Indri:mu=2500
 Indri:lambda=0.4
