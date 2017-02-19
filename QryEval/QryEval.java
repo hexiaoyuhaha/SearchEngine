@@ -291,12 +291,12 @@ public class QryEval {
         } else {
             if (result.size() <= 20) {
                 for (int i = 0; i < result.size(); i++) {
-                    System.out.println("\t" + i + ":  " + Idx.getExternalDocid(result.getDocid(i)) + ", "
+                    System.out.println("\t" + (i + 1) + ":  " + Idx.getExternalDocid(result.getDocid(i)) + ", "
                             + result.getDocidScore(i));
                 }
             } else {
                 for (int i = 0; i < 5; i++) {
-                    System.out.println("\t" + i + ":  " + Idx.getExternalDocid(result.getDocid(i)) + ", " + result.getDocidScore(i));
+                    System.out.println("\t" + (i + 1) + ":  " + Idx.getExternalDocid(result.getDocid(i)) + ", " + result.getDocidScore(i));
                 }
             }
 
@@ -319,7 +319,7 @@ public class QryEval {
                 int outputLen = min(trecEvalOutputLength, result.size());
 //        int outputLen = result.size();
                 for (int i = 0; i < outputLen; i++) {
-                    String formattedLine = String.format("%s\t%s\t%s\t%d\t%s\t%s\n", qid, "Q0", Idx.getExternalDocid(result.getDocid(i)), i, result.getDocidScore(i), runId);
+                    String formattedLine = String.format("%s\t%s\t%s\t%d\t%s\t%s\n", qid, "Q0", Idx.getExternalDocid(result.getDocid(i)), i + 1, result.getDocidScore(i), runId);
                     bw.write(formattedLine);
                     if (i < 5) {
                         System.out.print(formattedLine);

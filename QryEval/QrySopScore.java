@@ -37,7 +37,7 @@ public class QrySopScore extends QrySop {
     } else if (r instanceof RetrievalModelRankedBoolean) {
       return this.getScoreRankedBoolean (r);
     } else if (r instanceof RetrievalModelBM25) {
-      return this.getScoreBM25 (r);
+      return this.getScoreBM25 ((RetrievalModelBM25)r);
     } else {
       throw new IllegalArgumentException
         (r.getClass().getName() + " doesn't support the SCORE operator.");
@@ -87,7 +87,7 @@ public class QrySopScore extends QrySop {
       int tf = term.getCurrentTf();
       int docid = this.docIteratorGetMatch();
       double doclen = Idx.getFieldLength (term.field, docid);
-      double avg_doclen = Idx.getSumOfFieldLengths(term.field) / (float) Idx.getDocCount(term.field);
+      double avg_doclen = Idx.getSumOfFieldLengths(term.field) / (double) Idx.getDocCount(term.field);
       double k1 = r.getK_1(), b = r.getB();
       double tfWeight = (double) tf / (tf + k1 * ((1 - b) + b * doclen / avg_doclen));
 

@@ -29,10 +29,17 @@ public class QrySopSum extends QrySop {
         if (! this.docIteratorHasMatchCache()) {
             return 0.0;
         } else {
+            int docId = docIteratorGetMatch();
+            Boolean flag = false;
+
             // for this docId, return the sum of term score
             double sum = 0;
             for (Qry q: this.args) {
-                sum += ((QrySop) q).getScore(r);
+                if (q.docIteratorHasMatchCache() && q.docIteratorGetMatch() == docId) {
+                    flag = true;
+                    double score = ((QrySop) q).getScore(r);
+                    sum += ((QrySop) q).getScore(r);
+                }
             }
             return sum;
         }

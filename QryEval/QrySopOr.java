@@ -54,18 +54,18 @@ public class QrySopOr extends QrySop {
     if (!this.docIteratorHasMatchCache()) {
       return 0.0;
     } else {
+        // Normal case, OR operator only return the score of sub Qry that have docIteratorGetMatch() == docId
+        // But if more than one file are pointing at current docId, we need to return the max
         // Return the MAX function to combine the scores from the query argument
         int docId = docIteratorGetMatch();
         Boolean flag = false;
         double max = 0;
-        for (int i=0; i<this.args.size(); i++) {
-            Qry q_i = this.args.get(i);
-            if (q_i.docIteratorHasMatchCache()) {
-                if (q_i.docIteratorGetMatch() == docId) {
-                    flag = true;
-                    double score = ((QrySop) q_i).getScore(r);
-                    max = max >= score ? max : score;
-                }
+
+        for (Qry q: this.args) {
+            if (q.docIteratorHasMatchCache() && q.docIteratorGetMatch() == docId) {
+                flag = true;
+                double score = ((QrySop) q).getScore(r);
+                max = max >= score ? max : score;
             }
         }
         if (!flag) {
