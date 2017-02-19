@@ -32,26 +32,24 @@ public class QryIopNear extends QryIop {
         }
 
         int docId = Qry.INVALID_DOCID;
+        // Each loop, process one doc
         while (true) {
-            // All the document id should match
-            // if we have next match
+            // find match on DocId
             if (this.docIteratorHasMatchAll(null)) {
+                // This is really buggy !!! Only get docId from the args
+                // Don't use docId = this.docIteratorGetMatch();
                 docId = this.args.get(0).docIteratorGetMatch();
             } else {
-                // if we don't have next match document
-                // All process done
-                break;
+                break;  // if we don't have next match document, All process done
             }
 
-            // After finding the docId, iterate over the position
-            // record all the location to positions
+            // Iterate over the position, record all the location to positions
             List<Integer> positions = new ArrayList<Integer>();
             int size = this.args.size();
-
-            // If only have one list, then there is no need to do
-
             int[] locs;
             QryIop[] qryIops;
+
+            // Each loop, add one location to position
             while (true) {
                 // If any QryIopTerm reaches the end of position, break;
                 Boolean breakFlag = false;
