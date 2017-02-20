@@ -117,6 +117,10 @@ public class QryParser {
                     operator = new QrySopWsum();
                     break;
 
+                case "#wand":
+                    operator = new QrySopWand();
+                    break;
+
                 default:
                     syntaxError("Unknown query operator " + operatorName);
             }
@@ -329,11 +333,20 @@ public class QryParser {
             Qry[] qargs = null;
             PopData<String, String> p;
 
+            // default weight is 1
+            double weight = 1;
+
+            if (queryTree instanceof QrySopWsum || queryTree instanceof QrySopWand) {
+                p = popTerm(queryString);
+                weight = Double.parseDouble(p.getPopped());
+                queryString = p.getRemaining().trim();
+            }
             if (queryString.charAt(0) == '#') {    // Subquery
                 p = popSubquery(queryString);
                 qargs = new Qry[1];
                 qargs[0] = parseString(p.getPopped());
             } else {                    // Term
+                // Handle Weighted Sum
                 p = popTerm(queryString);
                 qargs = createTerms(p.getPopped());
             }
@@ -342,9 +355,13 @@ public class QryParser {
 
             //  Add the argument(s) to the query tree.
             for (int i = 0; i < qargs.length; i++) {
-
                 //  STUDENTS WILL NEED TO ADJUST THIS BLOCK TO HANDLE WEIGHTS IN HW2
                 queryTree.appendArg(qargs[i]);
+                if (queryTree instanceof QrySopWsum) {
+                    ((QrySopWsum) queryTree).arg_weights.add(weight);
+                } else if(queryTree instanceof QrySopWand) {
+                    ((QrySopWand) queryTree).arg_weights.add(weight);
+                }
             }
         }
 

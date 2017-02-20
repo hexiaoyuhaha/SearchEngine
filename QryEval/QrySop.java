@@ -2,6 +2,7 @@
  *  Copyright (c) 2017, Carnegie Mellon University.  All Rights Reserved.
  */
 import java.io.*;
+import java.util.ArrayList;
 
 /**
  *  The root class of all query operators that use a retrieval model
@@ -44,6 +45,35 @@ public abstract class QrySop extends Qry {
   public void initialize(RetrievalModel r) throws IOException {
     for (Qry q_i: this.args) {
       q_i.initialize (r);
+    }
+  }
+
+
+  public ArrayList<Double> arg_weights = new ArrayList<Double>();
+  public double[] arg_weights_portion;
+
+  /**
+   * compute the weight portion of ith element
+   * @param i
+   * @return return w_i / w_sum
+   */
+  public double weightPortion(int i) {
+    if (arg_weights_portion == null) {
+      // initialize the weightSum and arg_weights_portion
+      initWeightPortion();
+    }
+    return arg_weights_portion[i];
+  }
+
+
+  public void initWeightPortion() {
+    double weightSum = 0;
+    for (double weight: arg_weights) {
+      weightSum += weight;
+    }
+    arg_weights_portion = new double[arg_weights.size()];
+    for (int i = 0; i < arg_weights.size(); i++) {
+      arg_weights_portion[i] = arg_weights.get(i) / weightSum;
     }
   }
 }
