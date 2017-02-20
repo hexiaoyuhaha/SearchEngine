@@ -24,6 +24,11 @@ public class QrySopSum extends QrySop {
         }
     }
 
+    public double getDefaultScore(RetrievalModel r, long docId) throws IOException {
+        throw new IllegalArgumentException
+                    (r.getClass().getName() + " doesn't support the getDefaultScore operator.");
+
+    }
 
     private double getScoreBM25 (RetrievalModel r) throws IOException {
         if (! this.docIteratorHasMatchCache()) {
@@ -37,9 +42,12 @@ public class QrySopSum extends QrySop {
             for (Qry q: this.args) {
                 if (q.docIteratorHasMatchCache() && q.docIteratorGetMatch() == docId) {
                     flag = true;
-                    double score = ((QrySop) q).getScore(r);
                     sum += ((QrySop) q).getScore(r);
                 }
+            }
+
+            if (!flag) {
+                System.out.println("ERROR!!!!!  Ranked OR didn't match anything");
             }
             return sum;
         }

@@ -15,6 +15,9 @@ public class QrySopAnd extends QrySop {
      *  @return True if the query matches, otherwise false.
      */
     public boolean docIteratorHasMatch (RetrievalModel r) {
+        if (r instanceof RetrievalModelIndri) {
+            return this.docIteratorHasMatchMin(r);
+        }
         return this.docIteratorHasMatchAll (r);
     }
 
@@ -30,11 +33,53 @@ public class QrySopAnd extends QrySop {
             return this.getScoreUnrankedBoolean (r);
         } else if (r instanceof RetrievalModelRankedBoolean) {
             return this.getScoreRankedBoolean (r);
+        } else if (r instanceof RetrievalModelIndri) {
+            return this.getScoreIndri ((RetrievalModelIndri) r);
         } else {
             throw new IllegalArgumentException
                     (r.getClass().getName() + " doesn't support the OR operator.");
         }
     }
+
+
+    public double getDefaultScore(RetrievalModel r, long docId) throws IOException {
+        if (r instanceof RetrievalModelIndri) {
+            return getDefaultScoreIndri(r, docId);
+        } else {
+            throw new IllegalArgumentException
+                    (r.getClass().getName() + " doesn't support the getDefaultScore operator.");
+        }
+    }
+
+
+
+    private double getScoreIndri (RetrievalModel r) throws IOException {
+        int size = this.args.size();
+        double prob = 1;
+        int docId = this.docIteratorGetMatch();
+        for (Qry q: this.args) {
+            double score;
+            if (q.docIteratorHasMatchCache() && q.docIteratorGetMatch() == docId) {
+                score = ((QrySop) q).getScore(r);
+            } else {
+                score = ((QrySop) q).getDefaultScore(r, docId);
+            }
+            prob *= Math.pow(score, 1. / size);
+        }
+        return prob;
+    }
+
+
+    private double getDefaultScoreIndri (RetrievalModel r, long docId) throws IOException {
+        int size = this.args.size();
+        double prob = 1;
+        for (Qry q: this.args) {
+            double score = ((QrySop) q).getDefaultScore(r, docId);
+            prob *= Math.pow(score, 1. / size);
+        }
+        return prob;
+    }
+
 
     /**
      *  getScore for the UnrankedBoolean retrieval model.

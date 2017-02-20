@@ -108,7 +108,7 @@ public class QryEval {
             double k_3 = Double.parseDouble(parameters.get("BM25:k_3"));
             model = new RetrievalModelBM25(k_1, b, k_3);
 
-        }else if (modelString.equals("indri")) {
+        } else if (modelString.equals("indri")) {
             if (!(parameters.containsKey("Indri:mu") &&
                     parameters.containsKey("Indri:lambda") )) {
                 throw new IllegalArgumentException

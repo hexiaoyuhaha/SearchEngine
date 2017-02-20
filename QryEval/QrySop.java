@@ -24,6 +24,16 @@ public abstract class QrySop extends Qry {
     throws IOException;
 
   /**
+   *  Get a default score for the given docId
+   *  @param r The retrieval model.
+   *  @param docId used to calculate default score
+   *  @return The document score.
+   *  @throws IOException Error accessing the Lucene index
+   */
+  public abstract double getDefaultScore (RetrievalModel r, long docId)
+          throws IOException;
+
+  /**
    *  Initialize the query operator (and its arguments), including any
    *  internal iterators.  If the query operator is of type QryIop, it
    *  is fully evaluated, and the results are stored in an internal
