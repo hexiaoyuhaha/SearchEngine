@@ -1,7 +1,7 @@
 indexPath=/Users/hexiaoyu/Desktop/11642 search/index
-retrievalAlgorithm=Indri
-queryFilePath=input/queries-test-indri.txt
-trecEvalOutputPath=output/HW2-Test-1-BM25.teIn
+retrievalAlgorithm=rankedboolean
+queryFilePath=input/queries.txt
+trecEvalOutputPath=output/HW2-Exp1-rankedboolean.teIn
 BM25:k_1=1.2
 BM25:b=0.75
 BM25:k_3=0.0
