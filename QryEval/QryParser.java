@@ -113,6 +113,10 @@ public class QryParser {
                     operator = new QrySopSum();
                     break;
 
+                case "#wsum":
+                    operator = new QrySopWsum();
+                    break;
+
                 default:
                     syntaxError("Unknown query operator " + operatorName);
             }
@@ -384,7 +388,6 @@ public class QryParser {
     static private PopData<String, String> popTerm(String argString) {
 
         String[] substrings = argString.split("[ \t\n\r]+", 2);
-        String token = substrings[0];
 
         if (substrings.length < 2) {    //  Is this the last argument?
             argString = "";

@@ -4,68 +4,6 @@
 import java.io.*;
 import java.util.*;
 
-/**
- *  The root class in the query operator hierarchy.  Most of this
- *  class is abstract, because different <i>types</i> of query
- *  operators (Sop, Iop) have different subclasses, and each
- *  <i>query operator</i> has its own subclass.  This class defines
- *  the common interface to query operators, and is a place to store
- *  data structures and methods that are common to all query
- *  operators.
- *  <p>
- *  Document-at-a-time (DAAT) processing is implemented as iteration
- *  over (virtual or materialized) lists of document ids or document
- *  locations.  To evaluate query q using the UnrankedBoolean retrieval
- *  model:
- *  </p>
- *  <pre>
- *    RetrievalModel r = new RetrievalModelUnrankedBoolean ();
- *    q.initialize (r);
- * 
- *    while (q.docIteratorHasMatch (r)) {
- *      int docid = q.docIteratorGetMatch ();
- *      double score = ((QrySop) q).getScore (model);
- *      System.out.println ("internal docid: " + docid + ", score: " score);
- *      q.docIteratorAdvancePast (docid);
- *    }
- *  </pre>
- *  <p>
- *  The Qry class defines the iteration interface and provides general
- *  methods that each subclass may override or use.  Note that the 
- *  iteration interface <i>does not</i> conform to the standard Java
- *  iteration interface.  It has different characteristics and capabilities.
- *  For example, getting the current element <i>does not</i> consume the
- *  element; the iterator must be advanced explicitly, and it can be
- *  advanced in different ways, which provides opportunities to evaluate
- *  the query more efficiently.
- *  </p><p>
- *  The Qry class has two subclasses.  QrySop ("score operators") contains
- *  query operators that compute document scores (e.g., AND, OR, SCORE).
- *  QryIop ("inverted list operators") contains query operators that
- *  produce inverted lists (e.g., SYN, NEAR, TERM).  
- *  </p><p>
- *  The docIterator for query operators in the QrySop hierarchy iterates
- *  over a virtual list.  The next document id is determined dynamically
- *  when hasMatch is called.  Thus, the iterator needs to be part of
- *  the query operator, because different query operators may have
- *  different strategies for determining what matches and how scores
- *  are calculated.  When hasMatch identifies a match, the match is
- *  cached so that it can be accessed efficiently by getMatch and
- *  getScore methods.
- *  </p><p>
- *  The inverted lists of query operators in the QryIop hierarchy are
- *  materialized when the query operator is initialized.  It is not
- *  possible to produce them in a document-at-a-time mode because
- *  the df and ctf statistics are not known until the inverted list
- *  is fully constructed.  QryIop operators provide a document-at-a-time
- *  interface to the inverted lists via docIterators.
- *  </p><p>
- *  The data structure that stores query arguments (args) is accessible
- *  by subclasses.  If it is accessed via a standard Java iterator, the
- *  search engine creates and then discards many (many) iterators during
- *  query evaluation, which reduces computational efficiency.
- *  </p>
- */
 public abstract class Qry {
 
   //  --------------- Constants and variables ---------------------
