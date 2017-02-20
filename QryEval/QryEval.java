@@ -144,16 +144,32 @@ public class QryEval {
     }
 
     /**
+     * If enclosed in a score operator, then we don't need to add default operator
+     *
      * //     This 3 should be treated as default queries
      * //     brooks.title brothers.title clearance
      * //     #AND(brooks.title brothers.title) clearance
      * //     #AND(brooks brothers) #AND(like india)
+     *             // Add "#or" for default parameter, qString: "forearm pain"
+     *
+     *   For BM25,
+     *      only when
+     *
+     *   Fror
      */
-    public static Boolean needDefaultOperator(String qString) throws IllegalArgumentException {
 
+    //handle in Query Optimize
+    public static Boolean needDefaultOperator(String qString) throws IllegalArgumentException {
+        qString = qString.toLowerCase().trim();
+        // check for case "a b c" , "#xx(a b) c"
         if (!qString.startsWith("#") || !qString.trim().endsWith(")")) {
             return true;
+        } else if(qString.startsWith("#near") || qString.startsWith("#window") || qString.startsWith("#syn")) {
+            // after last check, qString must start with # and ends with )
+            // check for case that qStrin starts with a IopTerm #NEAR(a, b) #Window(a, b)
+            return true;
         } else {
+            // check for case #AND(brooks brothers) #AND(like india)
             int firstLeftIdx = qString.indexOf("(");
             int pairRightIdx = -1;
             int count = 1;
@@ -202,11 +218,11 @@ public class QryEval {
                 while (q.docIteratorHasMatch(model)) {
                     int docid = q.docIteratorGetMatch();
                     double score;
-                    if (q instanceof QryIopNear) {
+                    if (q instanceof QryIop) {
                         if (model instanceof RetrievalModelUnrankedBoolean) {
-                            score = ((QryIopNear) q).getCurrentTf() > 0 ? 1 : 0;
+                            score = ((QryIop) q).getCurrentTf() > 0 ? 1 : 0;
                         } else {
-                            score = ((QryIopNear) q).getCurrentTf();
+                            score = ((QryIop) q).getCurrentTf();
                         }
                     } else {
                         score = ((QrySop) q).getScore(model);
