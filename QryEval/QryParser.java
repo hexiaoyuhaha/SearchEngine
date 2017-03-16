@@ -90,11 +90,18 @@ public class QryParser {
 
         //  Create the query operator.
 
-        if (operatorNameLowerCase.startsWith("#near")) {   //"#near/3"
+        if (operatorNameLowerCase.startsWith("#near")
+                || operatorNameLowerCase.startsWith("#window")) {   //"#near/3"  #window/n
             int idx = operatorNameLowerCase.indexOf("/");
             String sub = operatorNameLowerCase.substring(idx + 1);
             int n = Integer.parseInt(sub);
-            operator = new QryIopNear(n);
+
+            if (operatorNameLowerCase.startsWith("#near")) {
+                operator = new QryIopNear(n);
+            } else { // (operatorNameLowerCase.startsWith("#window")
+                operator = new QryIopWindow(n);
+            }
+
         } else {
             switch (operatorNameLowerCase) {
                 case "#and":

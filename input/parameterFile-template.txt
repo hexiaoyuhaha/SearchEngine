@@ -1,5 +1,0 @@
-indexPath=/Users/hexiaoyu/Desktop/11642 search/index
-retrievalAlgorithm=UnRankedBoolean
-queryFilePath=queries-test.txt
-trecEvalOutputPath=HW1-queriesOR-UB.teIn
-trecEvalOutputLength=100
