@@ -2,6 +2,7 @@ out/**
 hw2/**
 hw3/**
 .idea/**
+.ipynb_checkpoints/**
 *.iml
 *.zip
 
