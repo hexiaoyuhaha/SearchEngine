@@ -1,7 +1,7 @@
-out/
-hw2/
-hw3/
-.idea/
+out/**
+hw2/**
+hw3/**
+.idea/**
 *.iml
 *.zip
 
