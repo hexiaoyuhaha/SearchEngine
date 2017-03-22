@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
  * Created by hexiaoyu on 2/20/17.
  * Assuming that parameter only only have maximu 3 digit
  */
-public class QryEvalTest {
+public class QryEvalTestHW2 {
 
      String indexPath = "/Users/hexiaoyu/Desktop/11642 search/index";
      String defaultQueryFilePath = "input/queries.txt";

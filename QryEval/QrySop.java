@@ -9,15 +9,15 @@ import java.util.ArrayList;
  *  to determine whether a query matches a document and to calculate a
  *  score for the document.  This class has two main purposes.  First, it
  *  allows query operators to easily recognize any nested query
- *  operator that returns a document scores (e.g., #AND (a #OR(b c)).
+ *  operator that returns a document list (e.g., #AND (a #OR(b c)).
  *  Second, it is a place to store data structures and methods that are
- *  common to all query operators that calculate document scores.
+ *  common to all query operators that calculate document list.
  */
 public abstract class QrySop extends Qry {
 
   /**
    *  Get a score for the document that docIteratorHasMatch matched.
-   *  @param r The retrieval model that determines how scores are calculated.
+   *  @param r The retrieval model that determines how list are calculated.
    *  @return The document score.
    *  @throws IOException Error accessing the Lucene index
    */

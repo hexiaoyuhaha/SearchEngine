@@ -23,7 +23,7 @@ public class QrySopAnd extends QrySop {
 
     /**
      *  Get a score for the document that docIteratorHasMatch matched.
-     *  @param r The retrieval model that determines how scores are calculated.
+     *  @param r The retrieval model that determines how list are calculated.
      *  @return The document score.
      *  @throws IOException Error accessing the Lucene index
      */
@@ -83,7 +83,7 @@ public class QrySopAnd extends QrySop {
 
     /**
      *  getScore for the UnrankedBoolean retrieval model.
-     *  @param r The retrieval model that determines how scores are calculated.
+     *  @param r The retrieval model that determines how list are calculated.
      *  @return The document score.
      *  @throws IOException Error accessing the Lucene index
      */
@@ -99,7 +99,7 @@ public class QrySopAnd extends QrySop {
         if (! this.docIteratorHasMatchCache()) {
             return 0.0;
         } else {
-            // Return the Min function to combine the scores from the query argument
+            // Return the Min function to combine the list from the query argument
             Qry q_0 = this.args.get(0);
             double min = ((QrySop) q_0).getScore(r);
             for (int i=1; i<this.args.size(); i++) {

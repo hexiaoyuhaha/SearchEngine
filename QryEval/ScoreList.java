@@ -23,16 +23,16 @@ public class ScoreList {
       this.score = score;
 
       try {
-	this.externalId = Idx.getExternalDocid (this.docid);
+	    this.externalId = Idx.getExternalDocid (this.docid);
       }
       catch (IOException ex){
-	ex.printStackTrace();
+	    ex.printStackTrace();
       }
     }
   }
 
   /**
-   *  A list of document ids and scores. 
+   *  A list of document ids and list.
    */
   private List<ScoreListEntry> scores = new ArrayList<ScoreListEntry>();
 

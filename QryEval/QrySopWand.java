@@ -6,7 +6,7 @@ import java.util.ArrayList;
  */
 public class QrySopWand extends QrySop {
 
-    // Calculate scores only for documents that contains a query term
+    // Calculate list only for documents that contains a query term
     @Override
     public boolean docIteratorHasMatch(RetrievalModel r) {
         return this.docIteratorHasMatchMin (r);

@@ -20,7 +20,7 @@ public class QrySopOr extends QrySop {
 
     /**
      *  Get a score for the document that docIteratorHasMatch matched.
-     *  @param r The retrieval model that determines how scores are calculated.
+     *  @param r The retrieval model that determines how list are calculated.
      *  @return The document score.
      *  @throws IOException Error accessing the Lucene index
      */
@@ -50,7 +50,7 @@ public class QrySopOr extends QrySop {
 
     /**
      *  getScore for the UnrankedBoolean retrieval model.
-     *  @param r The retrieval model that determines how scores are calculated.
+     *  @param r The retrieval model that determines how list are calculated.
      *  @return The document score.
      *  @throws IOException Error accessing the Lucene index
      */
@@ -68,7 +68,7 @@ public class QrySopOr extends QrySop {
         } else {
             // Normal case, OR operator only return the score of sub Qry that have docIteratorGetMatch() == docId
             // But if more than one file are pointing at current docId, we need to return the max
-            // Return the MAX function to combine the scores from the query argument
+            // Return the MAX function to combine the list from the query argument
             int docId = docIteratorGetMatch();
             Boolean flag = false;
             double max = 0;

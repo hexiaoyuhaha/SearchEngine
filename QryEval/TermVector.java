@@ -35,10 +35,13 @@ public class TermVector {
 
   private int fieldLength;
   private Terms luceneTerms;
-  private int[] positions;	// Index of the stem that at this position
-  private String[] stems;	// The vocabulary. 0 indicates a stopword
-  private int[] stemsFreq;	// The frequency (tf) of each entry in stems
-  private Term[] terms;
+  private int[] positions;	// Index of the stem that at this position. The length of position is document length
+  private String[] stems;	// The vocabulary. 0 indicates a stopword. The length of stems is vocabulary size
+  private int[] stemsFreq;	// The frequency (tf) of each entry in stems.
+  private Term[] terms;     // Term is something from lucene
+  // len(stems) = len(stemFrequ) = len(terms)
+  //
+
 
   //  --------------- Methods ---------------------------------------
 
@@ -188,6 +191,13 @@ public class TermVector {
       return 0;
 
     return this.stems.length;
+  }
+
+  /**
+   *  @return The vocabulary of current document
+   */
+  public String[] getStems() {
+    return this.stems;
   }
   
   /**

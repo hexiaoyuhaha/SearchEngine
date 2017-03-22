@@ -26,7 +26,7 @@ public class QrySopScore extends QrySop {
 
     /**
      *  Get a score for the document that docIteratorHasMatch matched.
-     *  @param r The retrieval model that determines how scores are calculated.
+     *  @param r The retrieval model that determines how list are calculated.
      *  @return The document score.
      *  @throws IOException Error accessing the Lucene index
      */
@@ -59,7 +59,7 @@ public class QrySopScore extends QrySop {
 
     /**
      *  getScore for the Unranked retrieval model.
-     *  @param r The retrieval model that determines how scores are calculated.
+     *  @param r The retrieval model that determines how list are calculated.
      *  @return The document score.
      *  @throws IOException Error accessing the Lucene index
      */
@@ -73,7 +73,7 @@ public class QrySopScore extends QrySop {
 
     /**
      * Ranked, Asumming that QrySopScore only have single args: QryIopTerm
-     * @param r The retrieval model that determines how scores are calculated.
+     * @param r The retrieval model that determines how list are calculated.
      * @return The document score
      * @throws IOException
      */

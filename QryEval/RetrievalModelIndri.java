@@ -6,6 +6,15 @@
  *  An object that stores parameters for the unranked Boolean
  *  retrieval model (there are none) and indicates to the query
  *  operators how the query should be evaluated.
+ *
+ *  fb=true
+ fbDocs=10
+ fbTerms=10
+ fbMu=0
+ fbOrigWeight=0.5
+ fbInitialRankingFile=hw3/initialRanking/Indri-Bow.teIn.txt
+ fbExpansionQueryFile=hw3/query/expension.txt
+
  */
 public class RetrievalModelIndri extends RetrievalModel {
 

@@ -6,15 +6,6 @@
 import java.io.*;
 import java.util.*;
 
-import org.apache.lucene.analysis.Analyzer.TokenStreamComponents;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-import org.apache.lucene.document.Document;
-import org.apache.lucene.index.*;
-import org.apache.lucene.search.*;
-import org.apache.lucene.store.FSDirectory;
-import org.apache.lucene.util.Version;
-
 public class QryEval {
 
     //  --------------- Constants and variables ---------------------
@@ -60,7 +51,7 @@ public class QryEval {
         RetrievalModel model = initializeRetrievalModel(parameters);
 
         //  Perform experiments.
-        processQueryFile(parameters.get("queryFilePath"), model);
+        processQueryFile(parameters.get("queryFilePath"), model, parameters);
 
         //  Clean up.
         timer.stop();
@@ -74,6 +65,98 @@ public class QryEval {
             writer.print("");
             writer.close();
         }
+    }
+
+    /**
+     * Process the each query in queryFile line by line
+     * Write the retrieval result to output file and console
+     * @param queryFilePath
+     * @param model
+     * @throws IOException Error accessing the Lucene index.
+     */
+    static void processQueryFile(String queryFilePath, RetrievalModel model, Map<String, String> parameters) throws Exception {
+        BufferedReader input = null;
+        try {
+            //  Each pass of the loop processes one query.
+            String qLine = null;
+            input = new BufferedReader(new FileReader(queryFilePath));
+
+            while ((qLine = input.readLine()) != null) {
+                // Validat that qid is in the query
+                int d = qLine.indexOf(':');
+                if (d < 0) {
+                    throw new IllegalArgumentException("Syntax error:  Missing ':' in query line.");
+                }
+                printMemoryUsage(false);
+
+                // Extract query id and query body
+                String qid = qLine.substring(0, d);
+                String query = qLine.substring(d + 1);
+                System.out.println("Query " + qLine);
+
+                ScoreList r = QryEvalQueryExpension.processQueryWithQueryExpansion(qid, query, model, parameters);
+
+                if (r != null) {
+//                    printResults(qid, r);
+                    writeResultToFile(qid, r);
+                    System.out.println();
+                }
+
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            input.close();
+        }
+    }
+
+
+    /**
+     * Process one query.
+     *
+     * @param qString A string that contains a query.
+     * @param model   The retrieval model determines how matching and scoring is done.
+     * @return Search results
+     * @throws IOException Error accessing the index
+     */
+    static ScoreList processQuery(String qString, RetrievalModel model)
+            throws IOException {
+
+        if (needDefaultOperator(qString)) {
+            // Add "#or" for default parameter, qString: "forearm pain"
+            String defaultOp = model.defaultQrySopName();
+            qString = defaultOp + "(" + qString + ")";
+        }
+        // automaticlly add
+        Qry q = QryParser.getQuery(qString);
+
+        // Show the query that is evaluated
+        System.out.println("    --> " + q);
+        if (q != null) {
+            ScoreList r = new ScoreList();
+            if (q.args.size() > 0) {        // Ignore empty queries
+                q.initialize(model); //creat all inverted list
+
+                while (q.docIteratorHasMatch(model)) {
+                    int docid = q.docIteratorGetMatch();
+                    double score;
+                    if (q instanceof QryIop) {
+                        if (model instanceof RetrievalModelUnrankedBoolean) {
+                            score = ((QryIop) q).getCurrentTf() > 0 ? 1 : 0;
+                        } else {
+                            score = ((QryIop) q).getCurrentTf();
+                        }
+                    } else {
+                        score = ((QrySop) q).getScore(model);
+                    }
+                    r.add(docid, score);
+                    q.docIteratorAdvancePast(docid);
+                }
+            }
+
+            return r;
+        } else
+            return null;
     }
 
     /**
@@ -116,6 +199,7 @@ public class QryEval {
             }
             double mu = Double.parseDouble(parameters.get("Indri:mu"));
             double lambda = Double.parseDouble(parameters.get("Indri:lambda"));
+
             model = new RetrievalModelIndri(mu, lambda);
         } else {
             throw new IllegalArgumentException
@@ -187,105 +271,9 @@ public class QryEval {
         return false;
     }
 
-    /**
-     * Process one query.
-     *
-     * @param qString A string that contains a query.
-     * @param model   The retrieval model determines how matching and scoring is done.
-     * @return Search results
-     * @throws IOException Error accessing the index
-     */
-    static ScoreList processQuery(String qString, RetrievalModel model)
-            throws IOException {
-
-        if (needDefaultOperator(qString)) {
-            // Add "#or" for default parameter, qString: "forearm pain"
-            String defaultOp = model.defaultQrySopName();
-            qString = defaultOp + "(" + qString + ")";
-        }
 
 
-        // automaticlly add
-        Qry q = QryParser.getQuery(qString);
 
-        // Show the query that is evaluated
-        System.out.println("    --> " + q);
-        if (q != null) {
-            ScoreList r = new ScoreList();
-            if (q.args.size() > 0) {        // Ignore empty queries
-                q.initialize(model); //creat all inverted list
-
-                while (q.docIteratorHasMatch(model)) {
-                    int docid = q.docIteratorGetMatch();
-                    double score;
-                    if (q instanceof QryIop) {
-                        if (model instanceof RetrievalModelUnrankedBoolean) {
-                            score = ((QryIop) q).getCurrentTf() > 0 ? 1 : 0;
-                        } else {
-                            score = ((QryIop) q).getCurrentTf();
-                        }
-                    } else {
-                        score = ((QrySop) q).getScore(model);
-                    }
-                    r.add(docid, score);
-                    q.docIteratorAdvancePast(docid);
-                }
-            }
-
-            return r;
-        } else
-            return null;
-    }
-
-    /**
-     * Process the query file.
-     *
-     * @param queryFilePath
-     * @param model
-     * @throws IOException Error accessing the Lucene index.
-     */
-    static void processQueryFile(String queryFilePath,
-                                 RetrievalModel model)
-            throws IOException {
-
-        BufferedReader input = null;
-
-        try {
-            String qLine = null;
-            input = new BufferedReader(new FileReader(queryFilePath));
-            //  Each pass of the loop processes one query.
-
-            while ((qLine = input.readLine()) != null) {
-                int d = qLine.indexOf(':');
-
-                if (d < 0) {
-                    throw new IllegalArgumentException
-                            ("Syntax error:  Missing ':' in query line.");
-                }
-
-                printMemoryUsage(false);
-
-                String qid = qLine.substring(0, d);
-                String query = qLine.substring(d + 1);
-
-                System.out.println("Query " + qLine);
-
-                ScoreList r = null;
-
-                r = processQuery(query, model);
-
-                if (r != null) {
-//          printResults(qid, r);
-                    writeResultToFile(qid, r);
-                    System.out.println();
-                }
-            }
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        } finally {
-            input.close();
-        }
-    }
 
     /**
      * Print the query results.
@@ -296,7 +284,7 @@ public class QryEval {
      * QueryID Q0 DocID Rank Score RunID
      *
      * @param qid    Original query.
-     * @param result A list of document ids and scores
+     * @param result A list of document ids and list
      * @throws IOException Error accessing the Lucene index.
      */
     static void printResults(String qid, ScoreList result) throws IOException {
@@ -376,7 +364,9 @@ public class QryEval {
         do {
             line = scan.nextLine();
             String[] pair = line.split("=");
-            parameters.put(pair[0].trim(), pair[1].trim());
+            if (pair.length > 1) {
+                parameters.put(pair[0].trim(), pair[1].trim());
+            }
         } while (scan.hasNext());
 
         scan.close();
