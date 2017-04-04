@@ -152,7 +152,7 @@ public class QryEvalTestHW2 {
                 paramFilePath = String.format("input/parameterFile-%s-%s-%.2f-%.2f.txt", exp, algo, nums[0], nums[1]);
                 trecEvalOutputPath = String.format("output/HW2-%s-%s-%.2f-%.2f.teln", exp, algo, nums[0], nums[1]);
 
-//                only use k1 and b for now
+//                only use k_1 and b for now
 //                paramFilePath = String.format("input/parameterFile-%s-%s-%.2f-%.2f-%.2f.txt", exp, algo, nums[0], nums[1], nums[2]);
 //                trecEvalOutputPath = String.format("output/HW2-%s-%s-%.2f-%.2f-%.2f.teln", exp, algo, nums[0], nums[1], nums[2]);
                 break;

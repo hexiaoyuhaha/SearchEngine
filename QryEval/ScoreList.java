@@ -118,8 +118,8 @@ public class ScoreList {
    * @param num Number of results to keep.
    */
   public void truncate(int num) {
-    List<ScoreListEntry> truncated = new ArrayList<ScoreListEntry>(this.scores.subList(0,
-        Math.min(num, scores.size())));
+    List<ScoreListEntry> truncated = new ArrayList<ScoreListEntry>(
+            this.scores.subList(0, Math.min(num, scores.size())));
     this.scores.clear();
     this.scores = truncated;
   }

@@ -36,15 +36,39 @@
 #      found to work well across a wide range of collections and topics. however, this may need to be
 #      modified on an individual basis.
 #
+while (<>) {
+    my ($key, $value) = split /:/, $_;
+    print $key, ":", formulate_query($value, "sd", 0.3, 0.35, 0.35 ) . "\n";
+}
 
 # example usage
-print formulate_query( "indiana child support", "sd", 0.3, 0.35, 0.35 ) . "\n\n";
-print formulate_query( "indiana child support", "sd", 0.5, 0.25, 0.25 ) . "\n\n";
-print formulate_query( "indiana child support", "sd", 0.8, 0.1, 0.1 ) . "\n\n";
-print formulate_query( "indiana child support", "sd", 0.5, 0.1, 0.4 ) . "\n\n";
-print formulate_query( "indiana child support", "sd", 0.5, 0.4, 0.1 ) . "\n\n";
-# print formulate_query( "white house rose garden", "sd", 0.5, 0.25, 0.25 ) . "\n\n";
-# print formulate_query( "white house rose garden", "fd", 0.8, 0.1, 0.1 ) . "\n\n";
+# print formulate_query( "indiana child support", "sd", 0.3, 0.35, 0.35 ) . "\n";
+# print formulate_query("fickle creek farm", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("indiana child support", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("universal animal cuts reviews", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("ralph owen brewster", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("map of brazil", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("kenmore gas water heater", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("adobe indian houses", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("california franchise tax board", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("poem in your pocket day", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("tv on computer", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("culpeper national cemetery", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("bowflex power pro", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("us capitol map", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("atypical squamous cells", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("fact on uranus", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("mothers day songs", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("electronic skeet shoot", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("american military university", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("jax chemical company", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("east ridge high school", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("illinois state tax", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("trombone for sale", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("sherwood regional library", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("martha stewart and imclone", "sd", 0.3, 0.35, 0.35) . "\n";
+# print formulate_query("tn highway patrol", "sd", 0.3, 0.35, 0.35) . "\n";
+
 
 #
 # formulates a query based on query text and feature weights

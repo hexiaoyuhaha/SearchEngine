@@ -35,7 +35,7 @@ public class QryEval {
             throw new IllegalArgumentException(USAGE);
         }
 
-        Map<String, String> parameters = readParameterFile(args[0]);
+        Map<String, String> parameters = readParameterFile(args[0].trim());
 
         // output length
         if (parameters.containsKey("trecEvalOutputLength")) {
@@ -48,10 +48,16 @@ public class QryEval {
 
         //  Open the index and initialize the retrieval model.
         Idx.open(parameters.get("indexPath"));
-        RetrievalModel model = initializeRetrievalModel(parameters);
 
         //  Perform experiments.
-        processQueryFile(parameters.get("queryFilePath"), model, parameters);
+        if (parameters.get("retrievalAlgorithm").toLowerCase().equals("letor")) {
+            QryEvalLeToR leToR = new QryEvalLeToR(parameters);
+            leToR.processQueryFile();
+        } else {
+            RetrievalModel model = initializeRetrievalModel(parameters);
+            processQueryFile(parameters.get("queryFilePath"), model, parameters);
+        }
+
 
         //  Clean up.
         timer.stop();
@@ -84,9 +90,8 @@ public class QryEval {
             while ((qLine = input.readLine()) != null) {
                 // Validat that qid is in the query
                 int d = qLine.indexOf(':');
-                if (d < 0) {
-                    throw new IllegalArgumentException("Syntax error:  Missing ':' in query line.");
-                }
+                if (d < 0)  throw new IllegalArgumentException("Syntax error:  Missing ':' in query line.");
+
                 printMemoryUsage(false);
 
                 // Extract query id and query body
@@ -94,6 +99,7 @@ public class QryEval {
                 String query = qLine.substring(d + 1);
                 System.out.println("Query " + qLine);
 
+//                r = QryEval.processQuery(query, model);
                 ScoreList r = QryEvalQueryExpension.processQueryWithQueryExpansion(qid, query, model, parameters);
 
                 if (r != null) {
@@ -151,6 +157,11 @@ public class QryEval {
                     }
                     r.add(docid, score);
                     q.docIteratorAdvancePast(docid);
+
+                    if (r.size() > 150) {
+                        r.sort();
+                        r.truncate(trecEvalOutputLength);
+                    }
                 }
             }
 
@@ -315,13 +326,11 @@ public class QryEval {
         System.out.println("write" + qid + " to file");
 
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(trecEvalOutputPath, true));) {
-
             if (result.size() < 1) {
                 String writeLine = String.format("%d\t%s\t%s\t%d\t%d\t%s", 10, "Q0", "dummy", 1, 0, runId);
                 bw.write(writeLine);
             } else {
                 int outputLen = min(trecEvalOutputLength, result.size());
-//        int outputLen = result.size();
                 for (int i = 0; i < outputLen; i++) {
                     String formattedLine = String.format("%s\t%s\t%s\t%d\t%s\t%s\n", qid, "Q0", Idx.getExternalDocid(result.getDocid(i)), i + 1, result.getDocidScore(i), runId);
                     bw.write(formattedLine);
@@ -330,9 +339,7 @@ public class QryEval {
                     }
                 }
             }
-
         }
-
     }
 
     private static int min(int a, int b) {

@@ -14,7 +14,7 @@ import java.util.*;
  */
 public class QryIopTerm extends QryIop {
 
-  private String term;
+  public String term;
 
   /**
    *  The term is assumed to match the body field.
@@ -51,4 +51,5 @@ public class QryIopTerm extends QryIop {
   public String toString(){
     return (this.term + "." + this.field);
   }
+
 }

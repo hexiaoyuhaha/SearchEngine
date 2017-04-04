@@ -90,14 +90,16 @@ public class QrySopScore extends QrySop {
         if (!this.docIteratorHasMatchCache()) {
             return 0.0;
         } else {
-            long N = Idx.getNumDocs();
-            int df = ((QryIop) this.args.get(0)).getDf();
+            QryIop term = ((QryIop) this.args.get(0)); //this QrySop only have 1 QryIop Term, thus only dealing with one term
+            int tf = term.getCurrentTf();
+            if (tf == 0) return 0.0;
+
+            long N = Idx.getNumDocs(); // Total number of document
+            int df = term.getDf();  // document frequency of current term
             double RSJ;
             if (N < 2 * df) RSJ = 0;
             else RSJ = Math.log((N - df + 0.5) / (df + 0.5));
 
-            QryIop term = ((QryIop) this.args.get(0));
-            int tf = term.getCurrentTf();
             int docid = this.docIteratorGetMatch();
             double doclen = Idx.getFieldLength(term.field, docid);
             double avg_doclen = Idx.getSumOfFieldLengths(term.field) / (double) Idx.getDocCount(term.field);
