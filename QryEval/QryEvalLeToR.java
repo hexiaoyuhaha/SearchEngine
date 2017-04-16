@@ -283,6 +283,8 @@ public class QryEvalLeToR {
                 features[17] = 0;
                 features[18] = 0;
             } else {
+//                features[17] = 0;
+//                features[18] = 0;
                 features[17] = calRankedBooleanScore(fieldsIopTerms.get(curField), curField, docid, stems);
                 features[18] = calVSMScore(fieldsIopTerms.get(curField), curField, docid, stems, features[17]);
             }

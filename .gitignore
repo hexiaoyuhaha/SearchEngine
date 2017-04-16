@@ -1,6 +1,8 @@
 out/**
 hw2/**
 hw3/**
+hw4/**
+hw5/**
 .idea/**
 .ipynb_checkpoints/**
 *.iml

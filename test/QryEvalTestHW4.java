@@ -20,10 +20,10 @@ public class QryEvalTestHW4 {
 
     @Test
     public void main() throws Exception {
-        test();
+//        test();
 //        exp1();
 //        exp2();
-//        exp3();
+        exp3();
     }
 
     public void test() throws Exception{
@@ -47,8 +47,7 @@ public class QryEvalTestHW4 {
 
     public void exp2() throws Exception{
         String[] args = new String[1];
-        for (String param: new String[]{"/letor-all.param"}) {
-            //"/letor-IRFusion.param", "letor-all.param", /letor-base.param", "/letor-content-based.param
+        for (String param: new String[]{"/letor-IRFusion.param", "/letor-base.param", "/letor-content-based.param", "/letor-all.param"}) {
             String paramFilePath = PARAM_DIR + param;
             args[0] = paramFilePath;
             QryEval.main(args);
@@ -57,7 +56,7 @@ public class QryEvalTestHW4 {
 
     public void exp3() throws Exception{
         String[] args = new String[1];
-        for (String param: new String[]{"/comb3.param", "/comb4.param"}) {
+        for (String param: new String[]{"/comb2.param", "/comb3.param", "/comb4.param"}) { //"/comb1.param",
             String paramFilePath = PARAM_DIR + param;
             args[0] = paramFilePath;
             QryEval.main(args);

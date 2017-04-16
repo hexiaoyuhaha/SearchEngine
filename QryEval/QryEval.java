@@ -366,17 +366,27 @@ public class QryEval {
                     ("Can't read " + parameterFileName);
         }
 
-        Scanner scan = new Scanner(parameterFile);
-        String line = null;
-        do {
-            line = scan.nextLine();
-            String[] pair = line.split("=");
-            if (pair.length > 1) {
-                parameters.put(pair[0].trim(), pair[1].trim());
-            }
-        } while (scan.hasNext());
+//        Scanner scan = new Scanner(parameterFile);
+//        String line = null;
+//        do {
+//            line = scan.nextLine();
+//            String[] pair = line.split("=");
+//            if (pair.length > 1) {
+//                parameters.put(pair[0].trim(), pair[1].trim());
+//            }
+//        } while (scan.hasNext());
+//        scan.close();
 
-        scan.close();
+        System.out.println("parameterFile: " + parameterFile);
+        String line = null;
+        try (BufferedReader br = new BufferedReader(new FileReader(parameterFile))) {
+            while ((line = br.readLine()) != null) {
+                String[] pair = line.split("=");
+                if (pair.length > 1) {
+                    parameters.put(pair[0].trim(), pair[1].trim());
+                }
+            }
+        }
 
         if (!(parameters.containsKey("indexPath") &&
                 parameters.containsKey("queryFilePath") &&
