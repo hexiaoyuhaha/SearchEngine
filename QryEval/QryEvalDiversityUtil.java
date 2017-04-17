@@ -161,11 +161,6 @@ public class QryEvalDiversityUtil {
         return sum;
     }
 
-    public static void setZero(double[] a) {
-        for (int i = 0; i < a.length; i++) {
-            a[i] = 0.0;
-        }
-    }
 
     public static int argmax(double[] a) {
         double max = -Double.MAX_VALUE;
@@ -179,12 +174,5 @@ public class QryEvalDiversityUtil {
         return argmax;
     }
 
-    public static double arraysum(double[] a) {
-        double sum = 0;
-        for (double num: a) {
-            sum += num;
-        }
-        return sum;
-    }
 }
 

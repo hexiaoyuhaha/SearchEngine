@@ -24,8 +24,7 @@ public class ScoreList {
 
       try {
 	    this.externalId = Idx.getExternalDocid (this.docid);
-      }
-      catch (IOException ex){
+      } catch (IOException ex){
 	    ex.printStackTrace();
       }
     }

@@ -22,8 +22,7 @@ public class QryEvalDiversityAlgo {
                                                     int maxResultRankingLength, double lambda) {
 
         ScoreList result = new ScoreList();
-        int diversifiedRankingSize = rowWiseDocScores.size();
-        double v = diversifiedRankingSize * 1. / numOfIntents;
+        double v = maxResultRankingLength * 1. / numOfIntents;
         double uniformIntentWeight = 1. / numOfIntents;
         Set<Integer> R = new HashSet<>(rowWiseDocScores.keySet());
         Set<Integer> S = new HashSet<>();
@@ -31,9 +30,9 @@ public class QryEvalDiversityAlgo {
         double[] s = new double[numOfIntents];
         double[] qt = new double[numOfIntents];
 
-        QryEvalDiversityUtil.setZero(s);
+//        QryEvalDiversityUtil.setZero(s);
 
-        while (result.size() < maxResultRankingLength) {
+        while (result.size() < maxResultRankingLength && R.size() > 0) {
             // updata qt
             set_qt(qt, s, v);
 
@@ -44,11 +43,11 @@ public class QryEvalDiversityAlgo {
 
             for (int docId: R) {
                 double[] scores = rowWiseDocScores.get(docId);
-                double relevanceScore = qt[i_star] * scores[i_star];
+                double relevanceScore = qt[i_star] * scores[i_star + 1];
                 double diversityScore = 0;
                 for (int i = 0; i < numOfIntents; i++) {
                     if (i != i_star) {
-                        diversityScore += qt[i] * scores[i];
+                        diversityScore += qt[i] * scores[i + 1];
                     }
                 }
                 double curScore =  lambda * relevanceScore + (1 - lambda) * diversityScore;
@@ -77,10 +76,18 @@ public class QryEvalDiversityAlgo {
     }
 
 
+    /**
+     * Please be very carefule here. Because the 0th entry in score is the orginal score.
+     * @param s length is numOfIntents
+     * @param scores length is numOfIntents + 1.
+     */
     public static void update_s(double[] s, double[] scores) {
-        double sum = QryEvalDiversityUtil.arraysum(scores);
+        double sum = 0;
+        for (int i = 1; i < scores.length; i++) {
+            sum += scores[i];
+        }
         for (int i = 0; i < s.length; i++) {
-            s[i] += scores[i] / sum;
+            s[i] += scores[i + 1] / sum;
         }
     }
 
@@ -92,7 +99,7 @@ public class QryEvalDiversityAlgo {
         Set<Integer> R = new HashSet<>(rowWiseDocScores.keySet());
         Set<Integer> S = new HashSet<>();
 
-        while (result.size() < maxResultRankingLength) {
+        while (result.size() < maxResultRankingLength && R.size() > 0) {
             // compute score for each remaining documents, only keep the max score
             int d_star = -1;
             double maxScore = -Double.MAX_VALUE;
