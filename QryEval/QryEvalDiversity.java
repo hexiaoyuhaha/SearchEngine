@@ -45,6 +45,9 @@ public class QryEvalDiversity {
     Boolean initialRankingFileFlag = false;
     String initialRankingFile;
 
+    Boolean WRITE_inRanks = false;
+    Boolean WRITE_scaled = false;
+
     public QryEvalDiversity(Map<String, String> parameters) throws Exception {
         queryFilePath = parameters.get("queryFilePath");
         intentsFile = parameters.get("diversity:intentsFile");
@@ -111,8 +114,10 @@ public class QryEvalDiversity {
             }
 
             // Write the result to output scaled file
-            QryEval.clearOutputPath(trecEvalOutputPath + ".scaled");
-            QryEvalDiversityUtil.writeToScaledFile(header, rowWiseDocScores, trecEvalOutputPath + ".scaled", scoreSum);
+            if (WRITE_scaled) {
+                QryEval.clearOutputPath(trecEvalOutputPath + ".scaled");
+                QryEvalDiversityUtil.writeToScaledFile(header, rowWiseDocScores, trecEvalOutputPath + ".scaled", scoreSum);
+            }
 
 
             // Diversified ranking
@@ -201,7 +206,7 @@ public class QryEvalDiversity {
         ScoreList origQidScore = QryEval.processQuery(queryMap.get(origQid), model);
         origQidScore.sort();
         origQidScore.truncate(maxInputRankingsLength);
-        QryEval.writeResultToFile(path, origQid, origQidScore);
+        if (WRITE_inRanks) QryEval.writeResultToFile(path, origQid, origQidScore);
 
         Set<Integer> topQids = new HashSet<>();
         for (int i = 0; i < origQidScore.size(); i++) {
@@ -212,7 +217,7 @@ public class QryEvalDiversity {
             ScoreList scoreList = QryEval.processQuery(queryMap.get(intentQid), model);
             scoreList.sort();
             scoreList.truncate(maxInputRankingsLength);
-            QryEval.writeResultToFile(path, intentQid, scoreList);
+            if (WRITE_inRanks) QryEval.writeResultToFile(path, intentQid, scoreList);
 
             for (int i = 0; i < scoreList.size(); i++) {
                 if (!topQids.contains(scoreList.getDocid(i))) {

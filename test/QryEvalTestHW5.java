@@ -15,11 +15,19 @@ public class QryEvalTestHW5 {
     public void test() throws Exception {
         String[] args = new String[1];
 
-        args[0] = "hw5/param/HW5-Train-2.param";
-        QryEval.main(args);
+
+//        args[0] = "hw5/param/HW5-Train-1.param"; // PM2
+//        QryEval.main(args);
+
+//        args[0] = "hw5/param/HW5-Train-2.param"; // xQuAD
+//        QryEval.main(args);
+//
+//
+//        args[0] = "hw5/param/HW5-Train-2-1.param";  // xQuAD, without input initial file, self generate one.
+//        QryEval.main(args);
 
 
-        args[0] = "hw5/param/HW5-Train-2-1.param";
+        args[0] = "hw5/param/HW5-Train-23.param"; // PM2
         QryEval.main(args);
     }
 }

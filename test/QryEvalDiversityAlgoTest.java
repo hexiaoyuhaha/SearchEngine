@@ -33,7 +33,7 @@ public class QryEvalDiversityAlgoTest {
         for (int i = 0; i < data.length; i++) {
             rowWiseDocScores.put(i, data[i]);
         }
-        ScoreList scoreList = QryEvalDiversityAlgo.diversifiedRankingxPM2(rowWiseDocScores, 2, 8, 0.6);
+        ScoreList scoreList = QryEvalDiversityAlgo.diversifiedRankingPM2(rowWiseDocScores, 2, 8, 0.6);
     }
 
 

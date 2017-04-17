@@ -50,7 +50,7 @@ public class QryEval {
         Idx.open(parameters.get("indexPath"));
 
         //  Perform experiments.
-        if (parameters.get("retrievalAlgorithm").toLowerCase().equals("letor")) {
+        if (parameters.containsKey("retrievalAlgorithm") && parameters.get("retrievalAlgorithm").toLowerCase().equals("letor")) {
             QryEvalLeToR leToR = new QryEvalLeToR(parameters);
             leToR.processQueryFile();
         } else if (parameters.containsKey("diversity") && parameters.get("diversity").toLowerCase().equals("true")) {
@@ -238,20 +238,7 @@ public class QryEval {
                 + ((runtime.totalMemory() - runtime.freeMemory()) / (1024L * 1024L)) + " MB");
     }
 
-    /**
-     * If enclosed in a score operator, then we don't need to add default operator
-     *
-     * //     This 3 should be treated as default queries
-     * //     brooks.title brothers.title clearance
-     * //     #AND(brooks.title brothers.title) clearance
-     * //     #AND(brooks brothers) #AND(like india)
-     *             // Add "#or" for default parameter, qString: "forearm pain"
-     *
-     *   For BM25,
-     *      only when
-     *
-     *   Fror
-     */
+
 
     //handle in Query Optimize
     public static Boolean needDefaultOperator(String qString) throws IllegalArgumentException {
@@ -365,17 +352,6 @@ public class QryEval {
                     ("Can't read " + parameterFileName);
         }
 
-//        Scanner scan = new Scanner(parameterFile);
-//        String line = null;
-//        do {
-//            line = scan.nextLine();
-//            String[] pair = line.split("=");
-//            if (pair.length > 1) {
-//                parameters.put(pair[0].trim(), pair[1].trim());
-//            }
-//        } while (scan.hasNext());
-//        scan.close();
-
         System.out.println("parameterFile: " + parameterFile);
         String line = null;
         try (BufferedReader br = new BufferedReader(new FileReader(parameterFile))) {
@@ -389,10 +365,16 @@ public class QryEval {
 
         if (!(parameters.containsKey("indexPath") &&
                 parameters.containsKey("queryFilePath") &&
-                parameters.containsKey("trecEvalOutputPath") &&
-                parameters.containsKey("retrievalAlgorithm"))) {
+                parameters.containsKey("trecEvalOutputPath"))) {
             throw new IllegalArgumentException
                     ("Required parameters were missing from the parameter file.");
+        }
+
+        // For HW5 diversity task, allow retrievalAlgorithm to be empty
+        if (!parameters.containsKey("retrievalAlgorithm") && !parameters.containsKey("diversity:initialRankingFile")) {
+            throw new IllegalArgumentException
+                    ("Required parameters were missing from the parameter file.\n" +
+                            "Should at least have one of 'retrievalAlgorithm' and 'diversity:initialRankingFile'");
         }
 
         return parameters;

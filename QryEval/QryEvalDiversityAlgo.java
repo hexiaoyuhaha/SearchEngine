@@ -11,14 +11,14 @@ public class QryEvalDiversityAlgo {
                                                  int maxResultRankingLength, String algorithm, double lambda) {
         algorithm = algorithm.toLowerCase().trim();
         if (algorithm.equals("pm2")) {
-            return diversifiedRankingxPM2(rowWiseDocScores, numOfIntents, maxResultRankingLength, lambda);
+            return diversifiedRankingPM2(rowWiseDocScores, numOfIntents, maxResultRankingLength, lambda);
         } else {
             return diversifiedRankingxQuAD(rowWiseDocScores, numOfIntents, maxResultRankingLength, lambda);
         }
     }
 
 
-    public static ScoreList diversifiedRankingxPM2(Map<Integer, double[]> rowWiseDocScores, int numOfIntents,
+    public static ScoreList diversifiedRankingPM2(Map<Integer, double[]> rowWiseDocScores, int numOfIntents,
                                                     int maxResultRankingLength, double lambda) {
 
         ScoreList result = new ScoreList();
