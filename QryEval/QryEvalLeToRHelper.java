@@ -8,7 +8,7 @@ import java.util.*;
  */
 public class QryEvalLeToRHelper {
 
-    public void reRankTestData(String featureFile, String predictionFile) throws Exception{
+    public void reRankTestData(String trecEvalOutputPath, String featureFile, String predictionFile) throws Exception{
 
         Map<String, ScoreList> qidResultMap = new HashMap<>();
         ArrayList<String> qids = new ArrayList<>();
@@ -38,7 +38,7 @@ public class QryEvalLeToRHelper {
         // The sort key is column 2 (ascending numeric order for the query id portion of the field).
         Collections.sort(qids);
         for (String qid: qids) {
-            QryEval.writeResultToFile(qid, qidResultMap.get(qid));
+            QryEval.writeResultToFile(trecEvalOutputPath, qid, qidResultMap.get(qid));
         }
     }
 

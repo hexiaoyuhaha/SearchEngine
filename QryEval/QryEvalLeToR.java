@@ -12,7 +12,7 @@ public class QryEvalLeToR {
 
     String trainingQueryFile, trainingQrelsFile, trainingFeatureVectorsFile, pageRankFile,
             svmRankLearnPath, svmRankClassifyPath, svmRankParamC, svmRankModelFile,
-            testingFeatureVectorsFile, testingDocumentScores;
+            testingFeatureVectorsFile, testingDocumentScores, trecEvalOutputPath;
     Set<Integer> featureDisable;
     String queryFilePath;
     RetrievalModelBM25 bm25;
@@ -51,6 +51,7 @@ public class QryEvalLeToR {
         svmRankModelFile = parameters.get("letor:svmRankModelFile");
         testingFeatureVectorsFile = parameters.get("letor:testingFeatureVectorsFile");
         testingDocumentScores = parameters.get("letor:testingDocumentScores");
+        trecEvalOutputPath = parameters.get("trecEvalOutputPath");
 
 
         // Read featureDisable if have
@@ -127,7 +128,7 @@ public class QryEvalLeToR {
         Helper.excuteCommandLine(cli2);
 
         // re-rank test data
-        helper.reRankTestData(testingFeatureVectorsFile, testingDocumentScores);
+        helper.reRankTestData(trecEvalOutputPath, testingFeatureVectorsFile, testingDocumentScores);
         return null;
     }
 

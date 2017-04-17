@@ -53,6 +53,9 @@ public class QryEval {
         if (parameters.get("retrievalAlgorithm").toLowerCase().equals("letor")) {
             QryEvalLeToR leToR = new QryEvalLeToR(parameters);
             leToR.processQueryFile();
+        } else if (parameters.containsKey("diversity") && parameters.get("diversity").toLowerCase().equals("true")) {
+            QryEvalDiversity qryEvalDiversity = new QryEvalDiversity(parameters);
+            qryEvalDiversity.go();
         } else {
             RetrievalModel model = initializeRetrievalModel(parameters);
             processQueryFile(parameters.get("queryFilePath"), model, parameters);
@@ -104,7 +107,9 @@ public class QryEval {
 
                 if (r != null) {
 //                    printResults(qid, r);
-                    writeResultToFile(qid, r);
+                    r.sort();
+                    r.truncate(trecEvalOutputLength);
+                    writeResultToFile(trecEvalOutputPath, qid, r);
                     System.out.println();
                 }
 
@@ -157,11 +162,6 @@ public class QryEval {
                     }
                     r.add(docid, score);
                     q.docIteratorAdvancePast(docid);
-
-                    if (r.size() > 150) {
-                        r.sort();
-                        r.truncate(trecEvalOutputLength);
-                    }
                 }
             }
 
@@ -177,7 +177,7 @@ public class QryEval {
      * @return The initialized retrieval model
      * @throws IOException Error accessing the Lucene index.
      */
-    private static RetrievalModel initializeRetrievalModel(Map<String, String> parameters)
+     static RetrievalModel initializeRetrievalModel(Map<String, String> parameters)
             throws IOException {
 
         RetrievalModel model = null;
@@ -318,20 +318,19 @@ public class QryEval {
         }
     }
 
-    static void writeResultToFile(String qid, ScoreList result) throws IOException {
+    static void writeResultToFile(String outputPath, String qid, ScoreList result) throws IOException {
         String runId = "run-1";
 
         // Sort the ScoreList
         result.sort();
         System.out.println("write" + qid + " to file");
 
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(trecEvalOutputPath, true));) {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(outputPath, true));) {
             if (result.size() < 1) {
                 String writeLine = String.format("%d\t%s\t%s\t%d\t%d\t%s", 10, "Q0", "dummy", 1, 0, runId);
                 bw.write(writeLine);
             } else {
-                int outputLen = min(trecEvalOutputLength, result.size());
-                for (int i = 0; i < outputLen; i++) {
+                for (int i = 0; i < result.size(); i++) {
                     String formattedLine = String.format("%s\t%s\t%s\t%d\t%s\t%s\n", qid, "Q0", Idx.getExternalDocid(result.getDocid(i)), i + 1, result.getDocidScore(i), runId);
                     bw.write(formattedLine);
                     if (i < 5) {
@@ -382,7 +381,7 @@ public class QryEval {
         try (BufferedReader br = new BufferedReader(new FileReader(parameterFile))) {
             while ((line = br.readLine()) != null) {
                 String[] pair = line.split("=");
-                if (pair.length > 1) {
+                if (pair.length > 1 && pair[1].trim().length() > 0) {
                     parameters.put(pair[0].trim(), pair[1].trim());
                 }
             }

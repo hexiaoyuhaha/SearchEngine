@@ -13,12 +13,12 @@ public class ScoreList {
   //  A utility class to create a <internalDocid, externalDocid, score>
   //  object.
 
-  private class ScoreListEntry {
-    private int docid;
+  public class ScoreListEntry {
+    public int docid;
     private String externalId;
     private double score;
 
-    private ScoreListEntry(int internalDocid, double score) {
+    public ScoreListEntry(int internalDocid, double score) {
       this.docid = internalDocid;
       this.score = score;
 
@@ -34,7 +34,7 @@ public class ScoreList {
   /**
    *  A list of document ids and list.
    */
-  private List<ScoreListEntry> scores = new ArrayList<ScoreListEntry>();
+  public List<ScoreListEntry> scores = new ArrayList<ScoreListEntry>();
 
   /**
    *  Append a document score to a score list.
@@ -95,13 +95,6 @@ public class ScoreList {
 	  return 1;
 	else
       return s1.externalId.compareTo(s2.externalId);
-//	  if (s1.docid > s2.docid)
-//	    return 1;
-//	  else
-//	    if (s1.docid < s2.docid)
-//	      return -1;
-//	    else
-//	      return 0;
     }
   }
 
@@ -123,4 +116,16 @@ public class ScoreList {
     this.scores.clear();
     this.scores = truncated;
   }
+
+
+  public void removeZeroScoreEntry() {
+    sort();
+    int index = 0;
+    while (index < this.size() && getDocidScore(index) > 0) {
+      index++;
+    }
+
+    truncate(index);
+  }
+
 }
