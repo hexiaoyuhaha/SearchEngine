@@ -1,3 +1,4 @@
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -43,7 +44,18 @@ public class QryEvalDiversityAlgo {
 
             for (int docId: R) {
                 double[] scores = rowWiseDocScores.get(docId);
-                double relevanceScore = qt[i_star] * scores[i_star + 1];
+                double relevanceScore;
+//                try {
+                    relevanceScore = qt[i_star] * scores[i_star + 1];
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                    System.out.println("scores:\n" + Arrays.toString(scores));
+//                    System.out.println("qt:\n" + Arrays.toString(qt));
+//                    System.out.println("s:\n" + Arrays.toString(s));
+//                    System.out.println("i_star:\n" + i_star);
+//                    System.out.println("v:\n" + v);
+//                    break;
+//                }
                 double diversityScore = 0;
                 for (int i = 0; i < numOfIntents; i++) {
                     if (i != i_star) {
@@ -87,7 +99,9 @@ public class QryEvalDiversityAlgo {
             sum += scores[i];
         }
         for (int i = 0; i < s.length; i++) {
-            s[i] += scores[i + 1] / sum;
+            if (sum != 0) {
+                s[i] += scores[i + 1] / sum;
+            }
         }
     }
 

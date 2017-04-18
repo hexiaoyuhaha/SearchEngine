@@ -72,6 +72,9 @@ public class QryEvalDiversity {
     }
 
     public void go() throws Exception {
+        String inRankPath = trecEvalOutputPath + ".inRanks";
+        QryEval.clearOutputPath(trecEvalOutputPath + ".scaled");
+        QryEval.clearOutputPath(inRankPath);
 
         for (String origQid: qintentsSet.keySet()) {
             ScoreList origQidScore = new ScoreList();
@@ -83,7 +86,7 @@ public class QryEvalDiversity {
                 QryEvalDiversityUtil.readInitialRankingFile(initialRankingFile, maxInputRankingsLength, origQid, origQidScore, intentQidScoreMap);
             } else {
                 // self ranking
-                origQidScore = compRanking(origQid, intentQidScoreMap, trecEvalOutputPath + ".inRanks");
+                origQidScore = compRanking(origQid, intentQidScoreMap, inRankPath);
             }
 
 
@@ -115,7 +118,6 @@ public class QryEvalDiversity {
 
             // Write the result to output scaled file
             if (WRITE_scaled) {
-                QryEval.clearOutputPath(trecEvalOutputPath + ".scaled");
                 QryEvalDiversityUtil.writeToScaledFile(header, rowWiseDocScores, trecEvalOutputPath + ".scaled", scoreSum);
             }
 
@@ -125,6 +127,7 @@ public class QryEvalDiversity {
             result.sort();
             result.truncate(maxResultRankingLength);
             if (result != null) {
+                System.out.println("Writing final output to " + trecEvalOutputPath);
                 QryEval.writeResultToFile(trecEvalOutputPath, origQid, result);
                 System.out.println();
             }
@@ -201,8 +204,6 @@ public class QryEvalDiversity {
      * @throws Exception
      */
     public ScoreList compRanking(String origQid, Map<String, ScoreList> intentScores, String path) throws IOException {
-        QryEval.clearOutputPath(path);
-
         ScoreList origQidScore = QryEval.processQuery(queryMap.get(origQid), model);
         origQidScore.sort();
         origQidScore.truncate(maxInputRankingsLength);
